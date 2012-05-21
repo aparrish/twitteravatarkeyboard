@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Twitter Avatar Keyboard</title>
+		<meta name="description" content="" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+		<link rel="stylesheet" type="text/css" media="all" href="css/screen.css" />
+		<!--[if lt IE 9]>
+			<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+		<![endif]-->
+		<style type="text/css">
+			.imageletter {
+				display: inline;
+				border: 1px black solid;
+				height: 48px;
+				width: 48px;
+				vertical-align: middle;
+				cursor: pointer;
+			}
+			#lefty {
+				float: left;
+				width: 360px;
+			}
+			#righty {
+				float: right;
+			}
+			#display {
+				width: 500px;
+				min-height: 480px;
+				font-family: "Courier New", Courier, monospace;
+				font-size: 64px;
+				overflow-y: auto;
+				margin: 5px;
+			}
+			tt { font-family: monospace; font-weight: bold; font-size: 1.5em; }
+			footer { text-align: center; margin-top: 20px; }
+		</style>
+	</head>
+
+<body style="margin: 25px auto; width: 900px;">
+
+	<div id="lefty">
+		<img src="images/header.png">
+		<div style="margin-right: 20px; margin-left: 145px; margin-top: 20px;">
+			<img src="images/arrow.png">
+			<p>&nbsp;</p>
+			<p>Each letter will be replaced by the avatar of the Twitter user with the corresponding screen name.</p>
+			<p>For example: Type <tt>A</tt> to get <a href="http://twitter.com/a"><img src="https://api.twitter.com/1/users/profile_image?screen_name=a&size=mini" style="vertical-align: middle;"></a></p>
+		</div>
+	</div>
+
+	<div id="righty">
+		<div id="display" contenteditable="true" style="padding: 10px; border: 1px black solid;">
+		</div>
+	</div>
+
+	<br style="clear: both;">
+
+	<footer>
+	<p>This brief diversion was crafted by <a href="http://www.decontextualize.com">Adam Parrish</a>. <a href="http://twitter.com/aparrish">Follow me on Twitter</a>.</p>
+	<p>&nbsp;</p>
+	<p><a href="https://twitter.com/share" class="twitter-share-button">Tweet</a></p>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="https://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+	</footer>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+	<script>window.jQuery || document.write('<script src="js/jquery-1.7.1.min.js"><\/script>')</script>
+
+	<script>
+	$(document).ready(function() {
+		$("#display").focus();
+		$("#display").keypress(function(ev) {
+			var ch = String.fromCharCode(ev.which);
+			if (ev.altKey || ev.ctrlKey || ev.metaKey) { return; }
+			if (ch.match(/^[a-zA-Z0-9]$/)) {
+					pasteHtmlAtCaret("<img class='imageletter' src='https://api.twitter.com/1/users/profile_image?screen_name=" + ch + "&size=normal' onclick='window.open(\"http://twitter.com/" + ch + "\")'>");
+					$("#display").scrollTop = $("#display").scrollHeight;
+					ev.preventDefault();
+			}
+		});
+
+		// from http://stackoverflow.com/questions/6690752/insert-html-at-cursor-in-a-contenteditable-div
+		function pasteHtmlAtCaret(html) {
+			var sel, range;
+			if (window.getSelection) {
+					// IE9 and non-IE
+					sel = window.getSelection();
+					if (sel.getRangeAt && sel.rangeCount) {
+							range = sel.getRangeAt(0);
+							range.deleteContents();
+
+							// Range.createContextualFragment() would be useful here but is
+							// non-standard and not supported in all browsers (IE9, for one)
+							var el = document.createElement("div");
+							el.innerHTML = html;
+							var frag = document.createDocumentFragment(), node, lastNode;
+							while ( (node = el.firstChild) ) {
+									lastNode = frag.appendChild(node);
+							}
+							range.insertNode(frag);
+							
+							// Preserve the selection
+							if (lastNode) {
+									range = range.cloneRange();
+									range.setStartAfter(lastNode);
+									range.collapse(true);
+									sel.removeAllRanges();
+									sel.addRange(range);
+							}
+					}
+			} else if (document.selection && document.selection.type != "Control") {
+					// IE < 9
+					document.selection.createRange().pasteHTML(html);
+			}
+		}
+	});
+	</script>
+
+</body>
+</html>
